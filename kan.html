@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Board</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9fb;
+      color: #333;
+    }
+
+    header {
+      background-color: #8356b0;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    
+    #progress-container {
+      width: 90%;
+      max-width: 600px;
+      background: #eee;
+      border-radius: 10px;
+      margin: 1rem auto;
+      height: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #6f3a94;
+      transition: width 0.3s ease;
+    }
+
+    .board {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    .list {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      width: 250px;
+      min-width: 250px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .list h3 {
+      margin-top: 0;
+      color: #6a0dad;
+      cursor: pointer;
+    }
+
+    .card {
+      background-color: #eee;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: grab;
+    }
+
+    .card[contenteditable="true"]:focus {
+      outline: 2px solid #6a0dad;
+      background-color: #fff;
+    }
+
+    .add-card,
+    .add-list {
+      margin-top: 1rem;
+      padding: 0.4rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #6a0dad;
+      color: white;
+      cursor: pointer;
+    }
+
+    .add-list {
+      margin: 1rem;
+    }
+
+    .cards {
+      flex-grow: 1;
+      min-height: 50px;
+    }
+
+    @media (max-width: 600px) {
+      .list {
+        width: 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Focus board</header>
+  
+  
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <button class="add-list">Adicionar Lista</button>
+  <div class="board" id="board"></div>
+
+  <script>
+    const board = document.getElementById('board');
+    const addListBtn = document.querySelector('.add-list');
+    const progressBar = document.getElementById('progress-bar');
+
+    function updateProgressBar() {
+      const lists = board.querySelectorAll('.list');
+      if(lists.length === 0) {
+        progressBar.style.width = '0%';
+        return;
+      }
+
+    
+      const lastList = lists[lists.length - 1];
+      const allCards = board.querySelectorAll('.card');
+      const cardsInLastList = lastList.querySelectorAll('.card');
+
+      const total = allCards.length;
+      const completed = cardsInLastList.length;
+
+      let percent = 0;
+      if (total > 0) {
+        percent = (completed / total) * 100;
+      }
+
+      progressBar.style.width = percent + '%';
+    }
+
+    function createCard(text = "Novo cartão") {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.draggable = true;
+      card.contentEditable = true;
+      card.textContent = text;
+
+      card.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', card.outerHTML);
+        card.classList.add('dragging');
+        setTimeout(() => {
+          card.remove();
+          updateProgressBar();
+        }, 0);
+      });
+
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        updateProgressBar();
+      });
+
+      return card;
+    }
+
+    function createList(name = "Nova Lista") {
+      const list = document.createElement('div');
+      list.className = 'list';
+
+      const title = document.createElement('h3');
+      title.contentEditable = true;
+      title.textContent = name;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '🗑️';
+      deleteBtn.style.cssText = 'border:none;background:none;cursor:pointer;margin-left:auto;color:#6a0dad;font-size:1.2rem;';
+      deleteBtn.addEventListener('click', () => {
+        board.removeChild(list);
+        updateProgressBar();
+      });
+
+      const titleContainer = document.createElement('div');
+      titleContainer.style.display = 'flex';
+      titleContainer.style.alignItems = 'center';
+      titleContainer.appendChild(title);
+      titleContainer.appendChild(deleteBtn);
+
+      const cardContainer = document.createElement('div');
+      cardContainer.className = 'cards';
+
+      cardContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+
+      cardContainer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const cardHTML = e.dataTransfer.getData('text/plain');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cardHTML;
+        const newCard = tempDiv.firstElementChild;
+
+        newCard.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', newCard.outerHTML);
+          newCard.classList.add('dragging');
+          setTimeout(() => {
+            newCard.remove();
+            updateProgressBar();
+          }, 0);
+        });
+
+        newCard.addEventListener('dragend', () => {
+          newCard.classList.remove('dragging');
+          updateProgressBar();
+        });
+
+        cardContainer.appendChild(newCard);
+        updateProgressBar();
+      });
+
+      const addCardBtn = document.createElement('button');
+      addCardBtn.className = 'add-card';
+      addCardBtn.textContent = 'Adicionar Cartão';
+      addCardBtn.addEventListener('click', () => {
+        const newCard = createCard();
+        cardContainer.appendChild(newCard);
+        newCard.focus();
+        updateProgressBar();
+      });
+
+      list.appendChild(titleContainer);
+      list.appendChild(cardContainer);
+      list.appendChild(addCardBtn);
+      board.appendChild(list);
+
+      updateProgressBar();
+    }
+
+    addListBtn.addEventListener('click', () => createList());
+
+   
+    createList("A Fazer");
+    createList("Fazendo");
+    createList("Feito");
+
+    const firstListCards = board.querySelector('.list .cards');
+
+    for(let i=1; i<=5; i++) {
+      const card = createCard("Cartão " + i);
+      firstListCards.appendChild(card);
+    }
+
+    updateProgressBar();
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Focus Board</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9fb;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      background-color: #6a0dad;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90%;
+      max-width: 350px;
+    }
+
+    .profile-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #ccc;
+      margin-bottom: 1rem;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    a {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #6a0dad;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    button:hover {
+      background-color: #5800b0;
+    }
+  </style>
+</head>
+<body>
+  <header>Focus Board</header>
+  <div class="login-container">
+    <div class="profile-placeholder"></div>
+    <input type="email" placeholder="Email">
+    <input type="password" placeholder="Senha">
+    <a href="tela.html">Entrar</a>
+  </div>
+</body>
+</html>
