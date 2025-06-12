@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Pessoas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], input[type="color"] {
+      padding: 10px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .card-container {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    .card {
+      min-width: 150px;
+      padding: 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Adicionar Pessoa</h2>
+
+  <form id="form">
+    <input type="text" id="nome" placeholder="Nome da pessoa" required>
+    <input type="color" id="cor" value="#3498db">
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <div class="card-container" id="cards">
+    <!-- Cards aparecerão aqui -->
+  </div>
+
+  <script>
+    const form = document.getElementById("form");
+    const cards = document.getElementById("cards");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const nome = document.getElementById("nome").value;
+      const cor = document.getElementById("cor").value;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.style.backgroundColor = cor;
+      card.textContent = nome;
+
+      cards.appendChild(card);
+
+      form.reset(); // limpa o input de nome
+    });
+  
+    function obterDadosDosCards() {
+    const cards = document.querySelectorAll(".card");
+    const dados = [];
+
+    cards.forEach(card => {
+      const nome = card.textContent;
+      const cor = card.style.backgroundColor;
+      dados.push({ nome, cor });
+    });
+
+    return dados;
+  }
+
+  
+  const botaoVerDados = document.createElement("button");
+  botaoVerDados.textContent = "Ver dados dos cards";
+  botaoVerDados.style.marginTop = "20px";
+  botaoVerDados.onclick = () => {
+    const lista = obterDadosDosCards();
+    console.log(lista);
+    alert(JSON.stringify(lista, null, 2));
+  };
+
+  document.body.appendChild(botaoVerDados);
+  </script>
+
+</body>
+</html>
