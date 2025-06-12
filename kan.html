@@ -24,7 +24,6 @@
       font-size: 1.5rem;
     }
 
-    
     #progress-container {
       width: 90%;
       max-width: 600px;
@@ -54,8 +53,8 @@
       background-color: white;
       border-radius: 8px;
       padding: 1rem;
-      width: 250px;
-      min-width: 250px;
+      width: 280px;
+      min-width: 280px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
@@ -68,16 +67,48 @@
     }
 
     .card {
-      background-color: #eee;
-      margin-bottom: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 5px;
+      background-color: #f0f0f0;
+      margin-bottom: 1rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
       cursor: grab;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
     }
 
-    .card[contenteditable="true"]:focus {
+    .card .title,
+    .card .description {
+      padding: 0.3rem;
+      border-radius: 4px;
+    }
+
+    .card .title {
+      font-weight: bold;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    .card .description {
+      font-size: 0.9rem;
+      background: #f9f9f9;
+    }
+
+    .card textarea {
+      width: 100%;
+      resize: vertical;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 4px;
+      padding: 0.3rem;
+      background: #fff;
+    }
+
+    .card[contenteditable="true"]:focus,
+    .title:focus,
+    .description:focus {
       outline: 2px solid #6a0dad;
-      background-color: #fff;
     }
 
     .add-card,
@@ -106,16 +137,13 @@
         width: 90vw;
       }
     }
+
+   
   </style>
 </head>
 <body>
   <header>Focus board</header>
-  
-  
-  <div id="progress-container">
-    <div id="progress-bar"></div>
-  </div>
-
+  <div id="progress-container"><div id="progress-bar"></div></div>
   <button class="add-list">Adicionar Lista</button>
   <div class="board" id="board"></div>
 
@@ -126,12 +154,11 @@
 
     function updateProgressBar() {
       const lists = board.querySelectorAll('.list');
-      if(lists.length === 0) {
+      if (lists.length === 0) {
         progressBar.style.width = '0%';
         return;
       }
 
-    
       const lastList = lists[lists.length - 1];
       const allCards = board.querySelectorAll('.card');
       const cardsInLastList = lastList.querySelectorAll('.card');
@@ -139,20 +166,31 @@
       const total = allCards.length;
       const completed = cardsInLastList.length;
 
-      let percent = 0;
-      if (total > 0) {
-        percent = (completed / total) * 100;
-      }
-
+      const percent = total > 0 ? (completed / total) * 100 : 0;
       progressBar.style.width = percent + '%';
     }
 
-    function createCard(text = "Novo cartão") {
+    function createCard(titleText = "Título", descText = "Descrição") {
       const card = document.createElement('div');
       card.className = 'card';
       card.draggable = true;
-      card.contentEditable = true;
-      card.textContent = text;
+
+      const title = document.createElement('div');
+      title.className = 'title';
+      title.contentEditable = true;
+      title.textContent = titleText;
+
+      const description = document.createElement('div');
+      description.className = 'description';
+      description.contentEditable = true;
+      description.textContent = descText;
+
+      const commentBox = document.createElement('textarea');
+      commentBox.placeholder = 'Comentário...';
+
+      card.appendChild(title);
+      card.appendChild(description);
+      card.appendChild(commentBox);
 
       card.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', card.outerHTML);
@@ -196,9 +234,7 @@
       const cardContainer = document.createElement('div');
       cardContainer.className = 'cards';
 
-      cardContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-      });
+      cardContainer.addEventListener('dragover', (e) => e.preventDefault());
 
       cardContainer.addEventListener('drop', (e) => {
         e.preventDefault();
@@ -206,6 +242,10 @@
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = cardHTML;
         const newCard = tempDiv.firstElementChild;
+
+        newCard.querySelectorAll('.title, .description').forEach(div => {
+          div.contentEditable = true;
+        });
 
         newCard.addEventListener('dragstart', (e) => {
           e.dataTransfer.setData('text/plain', newCard.outerHTML);
@@ -231,7 +271,7 @@
       addCardBtn.addEventListener('click', () => {
         const newCard = createCard();
         cardContainer.appendChild(newCard);
-        newCard.focus();
+        newCard.querySelector('.title').focus();
         updateProgressBar();
       });
 
@@ -245,15 +285,13 @@
 
     addListBtn.addEventListener('click', () => createList());
 
-   
     createList("A Fazer");
     createList("Fazendo");
     createList("Feito");
 
     const firstListCards = board.querySelector('.list .cards');
-
-    for(let i=1; i<=5; i++) {
-      const card = createCard("Cartão " + i);
+    for (let i = 1; i <= 3; i++) {
+      const card = createCard(`Tarefa ${i}`, `Descrição da tarefa ${i}`);
       firstListCards.appendChild(card);
     }
 
