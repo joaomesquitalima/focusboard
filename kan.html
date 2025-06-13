@@ -210,79 +210,103 @@
     }
 
     function createList(name = "Nova Lista") {
-      const list = document.createElement('div');
-      list.className = 'list';
+  const list = document.createElement('div');
+  list.className = 'list';
 
-      const title = document.createElement('h3');
-      title.contentEditable = true;
-      title.textContent = name;
+  const title = document.createElement('h3');
+  title.contentEditable = true;
+  title.textContent = name;
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = '🗑️';
-      deleteBtn.style.cssText = 'border:none;background:none;cursor:pointer;margin-left:auto;color:#6a0dad;font-size:1.2rem;';
-      deleteBtn.addEventListener('click', () => {
-        board.removeChild(list);
+  // Botão de deletar lista
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = '🗑️';
+  deleteBtn.style.cssText = 'border:none;background:none;cursor:pointer;margin-left:8px;color:#6a0dad;font-size:1.2rem;';
+
+  // Input de cor
+  const colorInput = document.createElement('input');
+  colorInput.type = 'color';
+  colorInput.value = '#6a0dad'; // Cor padrão
+  colorInput.style.marginLeft = 'auto';
+  colorInput.title = 'Escolha a cor da lista';
+
+  // Container do título
+  const titleContainer = document.createElement('div');
+  titleContainer.style.display = 'flex';
+  titleContainer.style.alignItems = 'center';
+  titleContainer.style.gap = '0.5rem';
+  titleContainer.appendChild(title);
+  titleContainer.appendChild(colorInput);
+  titleContainer.appendChild(deleteBtn);
+
+  const cardContainer = document.createElement('div');
+  cardContainer.className = 'cards';
+
+  cardContainer.addEventListener('dragover', (e) => e.preventDefault());
+
+  cardContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const cardHTML = e.dataTransfer.getData('text/plain');
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = cardHTML;
+    const newCard = tempDiv.firstElementChild;
+
+    newCard.querySelectorAll('.title, .description').forEach(div => {
+      div.contentEditable = true;
+    });
+
+    newCard.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', newCard.outerHTML);
+      newCard.classList.add('dragging');
+      setTimeout(() => {
+        newCard.remove();
         updateProgressBar();
-      });
+      }, 0);
+    });
 
-      const titleContainer = document.createElement('div');
-      titleContainer.style.display = 'flex';
-      titleContainer.style.alignItems = 'center';
-      titleContainer.appendChild(title);
-      titleContainer.appendChild(deleteBtn);
-
-      const cardContainer = document.createElement('div');
-      cardContainer.className = 'cards';
-
-      cardContainer.addEventListener('dragover', (e) => e.preventDefault());
-
-      cardContainer.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const cardHTML = e.dataTransfer.getData('text/plain');
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = cardHTML;
-        const newCard = tempDiv.firstElementChild;
-
-        newCard.querySelectorAll('.title, .description').forEach(div => {
-          div.contentEditable = true;
-        });
-
-        newCard.addEventListener('dragstart', (e) => {
-          e.dataTransfer.setData('text/plain', newCard.outerHTML);
-          newCard.classList.add('dragging');
-          setTimeout(() => {
-            newCard.remove();
-            updateProgressBar();
-          }, 0);
-        });
-
-        newCard.addEventListener('dragend', () => {
-          newCard.classList.remove('dragging');
-          updateProgressBar();
-        });
-
-        cardContainer.appendChild(newCard);
-        updateProgressBar();
-      });
-
-      const addCardBtn = document.createElement('button');
-      addCardBtn.className = 'add-card';
-      addCardBtn.textContent = 'Adicionar Cartão';
-      addCardBtn.addEventListener('click', () => {
-        const newCard = createCard();
-        cardContainer.appendChild(newCard);
-        newCard.querySelector('.title').focus();
-        updateProgressBar();
-      });
-
-      list.appendChild(titleContainer);
-      list.appendChild(cardContainer);
-      list.appendChild(addCardBtn);
-      board.appendChild(list);
-
+    newCard.addEventListener('dragend', () => {
+      newCard.classList.remove('dragging');
       updateProgressBar();
-    }
+    });
 
+    cardContainer.appendChild(newCard);
+    updateProgressBar();
+  });
+
+  const addCardBtn = document.createElement('button');
+  addCardBtn.className = 'add-card';
+  addCardBtn.textContent = 'Adicionar Cartão';
+  addCardBtn.style.backgroundColor = colorInput.value;
+
+  // Mudança de cor do título e botão
+  colorInput.addEventListener('input', () => {
+    title.style.color = colorInput.value;
+    addCardBtn.style.backgroundColor = colorInput.value;
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    board.removeChild(list);
+    updateProgressBar();
+  });
+
+  addCardBtn.addEventListener('click', () => {
+    const newCard = createCard();
+    cardContainer.appendChild(newCard);
+    newCard.querySelector('.title').focus();
+    updateProgressBar();
+  });
+
+  list.appendChild(titleContainer);
+  list.appendChild(cardContainer);
+  list.appendChild(addCardBtn);
+  board.appendChild(list);
+
+  // Aplicar a cor inicial
+  title.style.color = colorInput.value;
+
+  updateProgressBar();
+}
+
+    
     addListBtn.addEventListener('click', () => createList());
 
     createList("A Fazer");
